@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String            @id @default(uuid())
+  email            String            @unique
+  password         String
+  name             String?
+  isActive         Boolean           @default(true)
+  emailVerifiedAt  DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  deletedAt        DateTime?
+  workspaceMembers WorkspaceMember[]
+  projects         Project[]
+  tasks            Task[]            @relation("TaskAssignee")
+  createdTasks     Task[]            @relation("TaskCreator")
+  comments         TaskComment[]
+}
+
+model Workspace {
+  id        String            @id @default(uuid())
+  name      String
+  slug      String            @unique
+  isActive  Boolean           @default(true)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  deletedAt DateTime?
+  members   WorkspaceMember[]
+  projects  Project[]
+}
+
+model WorkspaceMember {
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  id          String    @id @default(uuid())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+}
+
+model Project {
+  userId      String
+  workspaceId String
+  id          String    @id @default(uuid())
+  name        String
+  slug        String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+  tasks       Task[]
+}
+
+model Task {
+  id        String  @id @default(uuid())
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id])
+  userId    String
+  user      User    @relation("TaskAssignee", fields: [userId], references: [id])
+
+  name        String
+  description String?
+  slug        String  @unique
+
+  // Status
+  status   TaskStatus @default(TODO)
+  priority Priority   @default(MEDIUM)
+
+  // Dates
+  startDate   DateTime?
+  dueDate     DateTime?
+  completedAt DateTime?
+
+  // Estimation
+  estimate Int? // in minutes or hours
+  position Int? // ordering within a column
+
+  // Audit
+  createdById String
+  createdBy   User   @relation("TaskCreator", fields: [createdById], references: [id])
+
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  deletedAt DateTime?
+  labels    Label[]
+  comments  TaskComment[]
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  IN_REVIEW
+  DONE
+  BLOCKED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model Label {
+  id    String @id @default(uuid())
+  name  String
+  color String
+
+  tasks Task[]
+}
+
+model TaskComment {
+  id      String @id @default(uuid())
+  taskId  String
+  userId  String
+  content String
+
+  task Task @relation(fields: [taskId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
