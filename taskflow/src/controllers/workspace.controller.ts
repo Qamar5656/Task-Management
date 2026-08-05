@@ -42,5 +42,29 @@ export const workspaceController = {
         
         const result = await workspaceService.deleteWorkspace(req.params.id, userId);
         res.status(200).json(result);
+    }),
+
+    addMember: catchAsync(async (req: Request, res: Response) => {
+        const userId = req.user?.id;
+        if (!userId) throw new AppError("Unauthorized", 401);
+        
+        const member = await workspaceService.addMember(req.params.id, userId, req.body);
+        res.status(201).json({ message: "Member added successfully", member });
+    }),
+
+    getMembers: catchAsync(async (req: Request, res: Response) => {
+        const userId = req.user?.id;
+        if (!userId) throw new AppError("Unauthorized", 401);
+        
+        const members = await workspaceService.getMembers(req.params.id, userId);
+        res.status(200).json(members);
+    }),
+
+    removeMember: catchAsync(async (req: Request, res: Response) => {
+        const userId = req.user?.id;
+        if (!userId) throw new AppError("Unauthorized", 401);
+        
+        const result = await workspaceService.removeMember(req.params.id, userId, req.params.userId);
+        res.status(200).json(result);
     })
 };

@@ -11,3 +11,8 @@ export const createWorkspaceSchema = joi.object({
 export const updateWorkspaceSchema = joi.object({
     name: joi.string().min(3).max(50).required()
 });
+
+export const addMemberSchema = joi.object({
+    email: joi.string().email().required(),
+    role: joi.string().valid('ADMIN', 'MEMBER', 'VIEWER').required()
+});

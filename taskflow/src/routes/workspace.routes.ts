@@ -13,4 +13,9 @@ router.get('/:id', workspaceController.getById);
 router.put('/:id', workspaceController.update);
 router.delete('/:id', workspaceController.delete);
 
+// Member Routes
+router.post('/:id/members', workspaceController.addMember);
+router.get('/:id/members', workspaceController.getMembers);
+router.delete('/:id/members/:userId', workspaceController.removeMember);
+
 export default router;

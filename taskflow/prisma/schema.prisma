@@ -44,9 +44,17 @@ model WorkspaceMember {
   workspaceId String
   workspace   Workspace @relation(fields: [workspaceId], references: [id])
   id          String    @id @default(uuid())
+  role        WorkspaceRole @default(MEMBER)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
 }
 
 model Project {
