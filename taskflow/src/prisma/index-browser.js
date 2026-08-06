@@ -128,6 +128,10 @@ exports.Prisma.UserScalarFieldEnum = {
   name: 'name',
   isActive: 'isActive',
   emailVerifiedAt: 'emailVerifiedAt',
+  verifyEmailOtp: 'verifyEmailOtp',
+  verifyEmailOtpExpiry: 'verifyEmailOtpExpiry',
+  resetPasswordOtp: 'resetPasswordOtp',
+  resetPasswordOtpExpiry: 'resetPasswordOtpExpiry',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -147,6 +151,7 @@ exports.Prisma.WorkspaceMemberScalarFieldEnum = {
   userId: 'userId',
   workspaceId: 'workspaceId',
   id: 'id',
+  role: 'role',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   deletedAt: 'deletedAt'
@@ -186,7 +191,8 @@ exports.Prisma.TaskScalarFieldEnum = {
 exports.Prisma.LabelScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  color: 'color'
+  color: 'color',
+  workspaceId: 'workspaceId'
 };
 
 exports.Prisma.TaskCommentScalarFieldEnum = {
@@ -219,6 +225,13 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.WorkspaceRole = exports.$Enums.WorkspaceRole = {
+  OWNER: 'OWNER',
+  ADMIN: 'ADMIN',
+  MEMBER: 'MEMBER',
+  VIEWER: 'VIEWER'
+};
+
 exports.TaskStatus = exports.$Enums.TaskStatus = {
   TODO: 'TODO',
   IN_PROGRESS: 'IN_PROGRESS',

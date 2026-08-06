@@ -9,21 +9,25 @@ datasource db {
 }
 
 model User {
-  id               String            @id @default(uuid())
-  email            String            @unique
-  password         String
-  name             String?
-  isActive         Boolean           @default(true)
-  emailVerifiedAt  DateTime?
-  createdAt        DateTime          @default(now())
-  updatedAt        DateTime          @updatedAt
-  deletedAt        DateTime?
-  workspaceMembers WorkspaceMember[]
-  projects         Project[]
-  tasks            Task[]            @relation("TaskAssignee")
-  createdTasks     Task[]            @relation("TaskCreator")
-  comments         TaskComment[]
-  refreshTokens    RefreshToken[]
+  id                     String            @id @default(uuid())
+  email                  String            @unique
+  password               String
+  name                   String?
+  isActive               Boolean           @default(true)
+  emailVerifiedAt        DateTime?
+  verifyEmailOtp         String?
+  verifyEmailOtpExpiry   DateTime?
+  resetPasswordOtp       String?
+  resetPasswordOtpExpiry DateTime?
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+  deletedAt              DateTime?
+  workspaceMembers       WorkspaceMember[]
+  projects               Project[]
+  tasks                  Task[]            @relation("TaskAssignee")
+  createdTasks           Task[]            @relation("TaskCreator")
+  comments               TaskComment[]
+  refreshTokens          RefreshToken[]
 }
 
 model Workspace {
@@ -36,17 +40,26 @@ model Workspace {
   deletedAt DateTime?
   members   WorkspaceMember[]
   projects  Project[]
+  labels    Label[]
 }
 
 model WorkspaceMember {
   userId      String
-  user        User      @relation(fields: [userId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
   workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  id          String    @id @default(uuid())
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id])
+  id          String        @id @default(uuid())
+  role        WorkspaceRole @default(MEMBER)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
   deletedAt   DateTime?
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
 }
 
 model Project {
@@ -114,9 +127,11 @@ enum Priority {
 }
 
 model Label {
-  id    String @id @default(uuid())
-  name  String
-  color String
+  id          String    @id @default(uuid())
+  name        String
+  color       String
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
 
   tasks Task[]
 }

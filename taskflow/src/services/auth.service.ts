@@ -34,17 +34,54 @@ export const authService = {
         
         const hashedPassword = await bcrypt.hash(password, 10);
         
+        // Generate a 6-digit OTP for email verification
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpiry = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
+        
         const user= await prisma.user.create({
             data:{
                 name,
                 email,
-                password: hashedPassword
+                password: hashedPassword,
+                verifyEmailOtp: otp,
+                verifyEmailOtpExpiry: otpExpiry,
+                isActive: false
             }
         })
         
-        const { password: _, ...userWithoutPassword } = user;
-        
-        // Generate Tokens
+        // SIMULATE SENDING EMAIL
+        console.log(`\n\n==============================================`);
+        console.log(`📨 Verification OTP for ${email}: ${otp}`);
+        console.log(`==============================================\n\n`);
+
+        return { message: "OTP sent to email. Please verify to continue." };
+    },
+
+    // Verify Email
+    verifyEmail: async (email: string, otp: string) => {
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user || user.verifyEmailOtp !== otp || !user.verifyEmailOtpExpiry) {
+            throw new Error("Invalid OTP");
+        }
+
+        if (user.verifyEmailOtpExpiry < new Date()) {
+            throw new Error("OTP has expired");
+        }
+
+        // OTP is valid, mark email as verified and user as active
+        const updatedUser = await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                emailVerifiedAt: new Date(),
+                isActive: true,
+                verifyEmailOtp: null,
+                verifyEmailOtpExpiry: null
+            }
+        });
+
+        const { password: _, ...userWithoutPassword } = updatedUser;
+
+        // Generate Tokens to log them in
         const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || "secret", { expiresIn: "15m" });
         const refreshToken = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET || "refresh_secret", { expiresIn: "7d" });
 
@@ -53,11 +90,11 @@ export const authService = {
             data: {
                 token: refreshToken,
                 userId: user.id,
-                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) 
+                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
             }
         });
 
-        return { user: userWithoutPassword, accessToken, refreshToken };
+        return { user: userWithoutPassword, accessToken, refreshToken, message: "Email verified successfully!" };
     },
 
     //Login
@@ -117,5 +154,78 @@ export const authService = {
         // Generate new Access Token
         const accessToken = jwt.sign({ userId: payload.userId }, process.env.JWT_SECRET || "secret", { expiresIn: "15m" });
         return { accessToken };
+    },
+
+    // Forgot Password
+    forgotPassword: async (email: string) => {
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user) {
+            // For security, don't reveal if user exists or not
+            return { message: "If your email is registered, you will receive an OTP." };
+        }
+
+        // Generate a 6-digit OTP
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        // Set expiry to 15 minutes from now
+        const otpExpiry = new Date(Date.now() + 15 * 60 * 1000);
+
+        await prisma.user.update({
+            where: { id: user.id },
+            data: {
+                resetPasswordOtp: otp,
+                resetPasswordOtpExpiry: otpExpiry
+            }
+        });
+
+        // SIMULATE SENDING EMAIL
+        console.log(`\n\n==============================================`);
+        console.log(` OTP for ${email}: ${otp}`);
+        console.log(`==============================================\n\n`);
+
+        return { message: "If your email is registered, you will receive an OTP." };
+    },
+
+    // Verify OTP
+    verifyOtp: async (email: string, otp: string) => {
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user || user.resetPasswordOtp !== otp || !user.resetPasswordOtpExpiry) {
+            throw new Error("Invalid OTP");
+        }
+
+        if (user.resetPasswordOtpExpiry < new Date()) {
+            throw new Error("OTP has expired");
+        }
+
+        // Generate a temporary reset token valid for 15 minutes
+        const resetToken = jwt.sign({ userId: user.id, purpose: "reset_password" }, process.env.JWT_SECRET || "secret", { expiresIn: "15m" });
+
+        return { resetToken, message: "OTP verified successfully" };
+    },
+
+    // Reset Password
+    resetPassword: async (resetToken: string, newPassword: string) => {
+        let payload: any;
+        try {
+            payload = jwt.verify(resetToken, process.env.JWT_SECRET || "secret");
+        } catch (e) {
+            throw new Error("Invalid or expired reset token");
+        }
+
+        if (payload.purpose !== "reset_password") {
+            throw new Error("Invalid token purpose");
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await prisma.user.update({
+            where: { id: payload.userId },
+            data: {
+                password: hashedPassword,
+                resetPasswordOtp: null,
+                resetPasswordOtpExpiry: null
+            }
+        });
+
+        return { message: "Password reset successfully" };
     }
 }
