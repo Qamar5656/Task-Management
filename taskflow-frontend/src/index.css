@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+/* Custom Premium SaaS Design Tokens */
+@theme {
+  --color-primary-500: #4F46E5;
+  --color-primary-600: #4338CA;
+  --color-surface: #1E293B;
+  --color-background: #0F172A;
+}
+
+body {
+  background-color: var(--color-background);
+  color: #F8FAFC;
+  font-family: 'Inter', system-ui, sans-serif;
+}
