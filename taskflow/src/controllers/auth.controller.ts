@@ -26,8 +26,13 @@ export const authController = {
     try{
       const user= await authService.loginUser(req.body);
       res.status(201).json({
-        messsage:"user logged-in successfully",
-        ...user
+        message: "user logged-in successfully",
+        user: {
+          id: user.user.id,
+          name: user.user.name,
+          email: user.user.email
+        },
+        accessToken: user.accessToken
       })
     }catch(error:any){
       res.status(400).json({

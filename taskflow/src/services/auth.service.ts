@@ -51,7 +51,7 @@ export const authService = {
         
         // SIMULATE SENDING EMAIL
         console.log(`\n\n==============================================`);
-        console.log(`📨 Verification OTP for ${email}: ${otp}`);
+        console.log(` Verification OTP for ${email}: ${otp}`);
         console.log(`==============================================\n\n`);
 
         return { message: "OTP sent to email. Please verify to continue." };
@@ -84,11 +84,12 @@ export const authService = {
         // Generate Tokens to log them in
         const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET || "secret", { expiresIn: "15m" });
         const refreshToken = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET || "refresh_secret", { expiresIn: "7d" });
+        const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
         // Save Refresh Token to DB
         await prisma.refreshToken.create({
             data: {
-                token: refreshToken,
+                token: hashedRefreshToken,
                 userId: user.id,
                 expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
             }
@@ -121,11 +122,12 @@ export const authService = {
         // Generate Tokens
         const accessToken = jwt.sign({ userId: uniqueUser.id }, process.env.JWT_SECRET || "secret", { expiresIn: "15m" });
         const refreshToken = jwt.sign({ userId: uniqueUser.id }, process.env.JWT_REFRESH_SECRET || "refresh_secret", { expiresIn: "7d" });
+        const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
 
         // Save Refresh Token to DB
         await prisma.refreshToken.create({
             data: {
-                token: refreshToken,
+                token: hashedRefreshToken,
                 userId: uniqueUser.id,
                 expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
             }
@@ -137,18 +139,34 @@ export const authService = {
     refreshAccess: async (token: string) => {
         if (!token) throw new Error("No refresh token provided");
 
-        // Verify token exists in DB and is not expired
-        const savedToken = await prisma.refreshToken.findUnique({ where: { token } });
-        if (!savedToken || savedToken.expiresAt < new Date()) {
-            throw new Error("Invalid or expired refresh token");
-        }
-
-        // Verify JWT signature
+        // 1. Verify JWT signature FIRST to get the user ID
         let payload: any;
         try {
             payload = jwt.verify(token, process.env.JWT_REFRESH_SECRET || "refresh_secret");
         } catch (e) {
             throw new Error("Invalid refresh token signature");
+        }
+
+        // 2. Fetch all active refresh tokens for this user
+        const savedTokens = await prisma.refreshToken.findMany({ 
+            where: { 
+                userId: payload.userId,
+                expiresAt: { gt: new Date() } // only unexpired
+            } 
+        });
+
+        // 3. Find the one that matches our raw token using bcrypt
+        let matchedToken = null;
+        for (const savedToken of savedTokens) {
+            const isValid = await bcrypt.compare(token, savedToken.token);
+            if (isValid) {
+                matchedToken = savedToken;
+                break;
+            }
+        }
+
+        if (!matchedToken) {
+            throw new Error("Invalid or expired refresh token");
         }
 
         // Generate new Access Token
