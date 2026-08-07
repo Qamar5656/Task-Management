@@ -1,15 +1,34 @@
 @import "tailwindcss";
 
+@import "tailwindcss";
+
 /* Custom Premium SaaS Design Tokens */
 @theme {
   --color-primary-500: #4F46E5;
   --color-primary-600: #4338CA;
   --color-surface: #1E293B;
-  --color-background: #0F172A;
+  --color-background: #0B0F19; /* Deeper, richer background */
+  
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-heading: 'Outfit', system-ui, sans-serif;
+  
+  --animate-blob: blob 7s infinite;
+  
+  @keyframes blob {
+    0% { transform: translate(0px, 0px) scale(1); }
+    33% { transform: translate(30px, -50px) scale(1.1); }
+    66% { transform: translate(-20px, 20px) scale(0.9); }
+    100% { transform: translate(0px, 0px) scale(1); }
+  }
 }
 
 body {
   background-color: var(--color-background);
   color: #F8FAFC;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
 }

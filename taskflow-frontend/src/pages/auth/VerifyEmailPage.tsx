@@ -27,7 +27,7 @@ export const VerifyEmailPage = () => {
       const response = await api.post('/auth/verify-email', { email, otp });
       
       // Log the user in with the received tokens
-      login(response.data.accessToken, response.data.user);
+      login(response.data.accessToken, response.data.refreshToken, response.data.user);
       
       toast.success('Email verified! Welcome to TaskFlow!');
       navigate('/');

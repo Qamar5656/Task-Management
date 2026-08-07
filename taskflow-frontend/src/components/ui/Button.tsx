@@ -21,8 +21,9 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <motion.button
         ref={ref}
-        whileHover={{ scale: disabled || isLoading ? 1 : 1.01 }}
-        whileTap={{ scale: disabled || isLoading ? 1 : 0.98 }}
+        whileHover={{ scale: disabled || isLoading ? 1 : 1.02 }}
+        whileTap={{ scale: disabled || isLoading ? 1 : 0.95 }}
+        transition={{ type: "spring", stiffness: 400, damping: 17 }}
         className={`${baseStyles} ${variants[variant]} ${disabled || isLoading ? 'opacity-70 cursor-not-allowed' : ''} ${className}`}
         disabled={disabled || isLoading}
         {...props}

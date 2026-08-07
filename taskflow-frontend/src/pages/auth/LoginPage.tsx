@@ -23,7 +23,7 @@ export const LoginPage = () => {
     setIsLoading(true);
     try {
       const response = await api.post('/auth/login', { email, password });
-      login(response.data.accessToken, response.data.user);
+      login(response.data.accessToken, response.data.refreshToken, response.data.user);
       toast.success('Welcome back!');
       navigate('/');
     } catch (error: any) {

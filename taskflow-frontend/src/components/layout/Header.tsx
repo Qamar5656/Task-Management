@@ -1,0 +1,88 @@
+import React from 'react';
+import { LogOut, Bell, Search, User as UserIcon, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { motion } from 'framer-motion';
+
+interface HeaderProps {
+  isSidebarCollapsed: boolean;
+  setIsSidebarCollapsed: (v: boolean) => void;
+  setIsMobileMenuOpen: (v: boolean) => void;
+}
+
+export const Header = ({ isSidebarCollapsed, setIsSidebarCollapsed, setIsMobileMenuOpen }: HeaderProps) => {
+  const { user, logout } = useAuth();
+
+  return (
+    <header className={`h-16 bg-[#0B0F19]/60 backdrop-blur-xl border-b border-slate-800/60 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 w-full transition-all duration-300 ${
+      isSidebarCollapsed ? 'md:ml-20 md:w-[calc(100%-5rem)]' : 'md:ml-64 md:w-[calc(100%-16rem)]'
+    }`}>
+      
+      <div className="flex items-center gap-4 flex-1">
+        {/* Mobile Menu Toggle */}
+        <button 
+          onClick={() => setIsMobileMenuOpen(true)}
+          className="md:hidden p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 cursor-pointer flex-shrink-0"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+
+        {/* Desktop Collapse Toggle */}
+        <button 
+          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          className="hidden md:flex p-2 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 cursor-pointer flex-shrink-0"
+          title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+        >
+          {isSidebarCollapsed ? <PanelLeftOpen className="w-5 h-5" /> : <PanelLeftClose className="w-5 h-5" />}
+        </button>
+
+        {/* Global Search */}
+        <div className="max-w-md hidden md:flex w-full">
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input 
+              type="text" 
+              placeholder="Search tasks or workspaces..." 
+              className="w-full bg-slate-800/50 border border-slate-700/50 rounded-full py-2 pl-10 pr-4 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-indigo-500/50 focus:ring-1 focus:ring-indigo-500/50 transition-all"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Right Actions */}
+      <div className="flex items-center gap-2 sm:gap-4 ml-4">
+        {/* Search for Mobile (Optional minimal icon) */}
+        <button className="md:hidden p-2 text-slate-400 hover:text-slate-200 transition-colors rounded-full hover:bg-slate-800 cursor-pointer">
+          <Search className="w-5 h-5" />
+        </button>
+
+        {/* Notifications */}
+        <button className="relative p-2 text-slate-400 hover:text-slate-200 transition-colors rounded-full hover:bg-slate-800 cursor-pointer">
+          <Bell className="w-5 h-5" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-purple-500 rounded-full border-2 border-slate-900" />
+        </button>
+
+        <div className="h-6 w-px bg-white/10 hidden sm:block" />
+
+        {/* User Profile / Logout */}
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex flex-col items-end">
+            <span className="text-sm font-medium text-slate-200">{user?.name}</span>
+            <span className="text-xs text-slate-500">{user?.email}</span>
+          </div>
+          
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-300 font-bold shadow-lg shadow-indigo-500/10">
+            {user?.name?.charAt(0).toUpperCase() || <UserIcon className="w-4 h-4" />}
+          </div>
+
+          <button 
+            onClick={logout}
+            title="Sign Out"
+            className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all cursor-pointer sm:ml-2"
+          >
+            <LogOut className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </header>
+  );
+};
