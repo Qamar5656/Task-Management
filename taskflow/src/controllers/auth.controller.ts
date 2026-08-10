@@ -32,7 +32,8 @@ export const authController = {
           name: user.user.name,
           email: user.user.email
         },
-        accessToken: user.accessToken
+        accessToken: user.accessToken,
+        refreshToken: user.refreshToken
       })
     }catch(error:any){
       res.status(400).json({
