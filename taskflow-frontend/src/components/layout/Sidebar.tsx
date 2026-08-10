@@ -18,21 +18,21 @@ interface SidebarProps {
 export const Sidebar = ({ isCollapsed, isMobileMenuOpen, setIsMobileMenuOpen }: SidebarProps) => {
   return (
     <div 
-      className={`fixed md:fixed inset-y-0 left-0 z-50 flex flex-col bg-[#0F172A]/60 backdrop-blur-xl border-r border-slate-800/60 transition-all duration-300 ease-in-out ${
+      className={`fixed md:fixed inset-y-0 left-0 z-50 flex flex-col bg-white/95 dark:bg-[#0F172A]/80 backdrop-blur-xl border-r border-slate-200 dark:border-slate-800/60 transition-all duration-300 ease-in-out ${
         isCollapsed ? 'w-20' : 'w-64'
       } ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}
     >
       {/* Logo Area */}
-      <div className="h-16 flex items-center justify-between px-6 border-b border-slate-800/60 relative">
+      <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800/60 relative">
         <div className={`flex items-center gap-3 ${isCollapsed ? 'mx-auto' : ''}`}>
           <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/30 flex-shrink-0">
             <Sparkles className="w-4 h-4 text-white" />
           </div>
           <Link to="/">
           {!isCollapsed && (
-            <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 whitespace-nowrap">
+            <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 whitespace-nowrap">
               TaskFlow
             </span>
           )}
@@ -42,7 +42,7 @@ export const Sidebar = ({ isCollapsed, isMobileMenuOpen, setIsMobileMenuOpen }: 
         {/* Mobile Close Button */}
         <button 
           onClick={() => setIsMobileMenuOpen(false)}
-          className="md:hidden p-2 -mr-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+          className="md:hidden p-2 -mr-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
@@ -59,8 +59,8 @@ export const Sidebar = ({ isCollapsed, isMobileMenuOpen, setIsMobileMenuOpen }: 
             className={({ isActive }) =>
               `flex items-center gap-3 py-3 rounded-xl transition-all duration-300 font-medium ${isCollapsed ? 'justify-center px-0' : 'px-4'} ${
                 isActive
-                  ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.1)]'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800 border border-transparent'
+                  ? 'bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-500/30 shadow-sm dark:shadow-[0_0_15px_rgba(99,102,241,0.1)]'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent'
               }`
             }
           >
@@ -72,10 +72,10 @@ export const Sidebar = ({ isCollapsed, isMobileMenuOpen, setIsMobileMenuOpen }: 
 
       {/* Footer Area */}
       {!isCollapsed ? (
-        <div className="p-4 border-t border-white/10 whitespace-nowrap overflow-hidden">
-          <div className="bg-slate-800/50 rounded-xl p-4 border border-white/5">
-            <p className="text-xs text-slate-400 font-medium mb-2">Pro Plan</p>
-            <div className="w-full bg-slate-700 rounded-full h-1.5 mb-2 overflow-hidden">
+        <div className="p-4 border-t border-slate-200 dark:border-white/10 whitespace-nowrap overflow-hidden">
+          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-white/5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-2">Pro Plan</p>
+            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mb-2 overflow-hidden">
               <motion.div 
                 initial={{ width: 0 }}
                 animate={{ width: '45%' }}
@@ -83,13 +83,13 @@ export const Sidebar = ({ isCollapsed, isMobileMenuOpen, setIsMobileMenuOpen }: 
                 className="bg-gradient-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full"
               />
             </div>
-            <p className="text-xs text-slate-500">45% limits used</p>
+            <p className="text-xs text-slate-600 dark:text-slate-500">45% limits used</p>
           </div>
         </div>
       ) : (
-        <div className="p-4 border-t border-white/10 flex justify-center">
-          <div className="w-8 h-8 rounded-xl bg-slate-800/50 border border-white/5 flex items-center justify-center text-slate-400" title="Pro Plan">
-            <Zap className="w-4 h-4 text-indigo-400" />
+        <div className="p-4 border-t border-slate-200 dark:border-white/10 flex justify-center">
+          <div className="w-8 h-8 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-white/5 flex items-center justify-center text-slate-500 dark:text-slate-400" title="Pro Plan">
+            <Zap className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
           </div>
         </div>
       )}

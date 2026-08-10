@@ -59,23 +59,23 @@ const AppRoutes = () => {
   );
 };
 
+import { ThemeProvider } from './context/ThemeContext';
+
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <AppRoutes />
-        <Toaster 
-          position="top-right" 
-          toastOptions={{
-            style: {
-              background: '#1E293B',
-              color: '#fff',
-              border: '1px solid rgba(255,255,255,0.1)'
-            }
-          }}
-        />
-      </BrowserRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <AppRoutes />
+          <Toaster 
+            position="top-right" 
+            toastOptions={{
+              className: '!bg-white !text-slate-900 dark:!bg-slate-800 dark:!text-white dark:!border dark:!border-white/10'
+            }}
+          />
+        </BrowserRouter>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 

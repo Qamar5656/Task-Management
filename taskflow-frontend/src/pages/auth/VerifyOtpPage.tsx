@@ -34,9 +34,9 @@ export const VerifyOtpPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-slate-900">
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/20 dark:bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/20 dark:bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -44,17 +44,17 @@ export const VerifyOtpPage = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md z-10"
       >
-        <div className="bg-slate-800/40 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
+        <div className="bg-white/70 dark:bg-slate-800/40 backdrop-blur-xl border border-white dark:border-white/10 rounded-2xl p-8 shadow-2xl">
           
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 mb-4 shadow-lg shadow-indigo-500/30">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-3xl font-bold text-white">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
               Verify OTP
             </h1>
-            <p className="text-slate-400 mt-2 text-sm">
-              Enter the 6-digit code sent to <span className="font-semibold text-white">{email}</span>.
+            <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
+              Enter the 6-digit code sent to <span className="font-semibold text-slate-900 dark:text-white">{email}</span>.
             </p>
           </div>
 
@@ -78,7 +78,7 @@ export const VerifyOtpPage = () => {
           </form>
 
           <div className="mt-6 text-center text-sm">
-            <Link to="/forgot-password" className="text-slate-400 hover:text-slate-300 transition-colors font-medium inline-flex items-center">
+            <Link to="/forgot-password" className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-300 transition-colors font-medium inline-flex items-center">
               <ArrowLeft className="w-4 h-4 mr-1" />
               Try a different email
             </Link>

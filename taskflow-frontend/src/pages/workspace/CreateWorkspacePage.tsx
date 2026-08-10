@@ -33,13 +33,13 @@ export const CreateWorkspacePage = () => {
     <div className="h-full flex flex-col max-w-2xl mx-auto py-8">
       
       <div className="mb-8">
-        <Link to="/workspaces" className="inline-flex items-center text-sm font-medium text-slate-400 hover:text-white transition-colors mb-4">
+        <Link to="/workspaces" className="inline-flex items-center text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors mb-4">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Back to Workspaces
         </Link>
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-3xl font-bold text-white mb-2">Create a new workspace</h1>
-          <p className="text-slate-400">
+        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, x: 0 }}>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-white mb-2 font-heading">Create a new workspace</h1>
+          <p className="text-slate-500 dark:text-slate-400">
             Workspaces are shared environments where your team can collaborate on projects and tasks.
           </p>
         </motion.div>
@@ -49,7 +49,7 @@ export const CreateWorkspacePage = () => {
         initial={{ opacity: 0, y: 20 }} 
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="bg-slate-900 border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl"
+        className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl"
       >
         <form onSubmit={handleSubmit} className="space-y-6">
           <Input
@@ -63,7 +63,7 @@ export const CreateWorkspacePage = () => {
             autoFocus
           />
 
-          <div className="pt-4 border-t border-slate-800 flex justify-end gap-3">
+          <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-end gap-3">
             <Button 
               type="button" 
               variant="secondary" 

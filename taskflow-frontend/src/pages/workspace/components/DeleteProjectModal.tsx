@@ -34,12 +34,12 @@ export const DeleteProjectModal = ({ isOpen, onClose, project, onSuccess }: Dele
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Delete Project">
       <div className="space-y-6">
-        <div className="flex items-start gap-4 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400">
+        <div className="flex items-start gap-4 p-4 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-xl text-red-600 dark:text-red-400">
           <AlertTriangle className="w-6 h-6 flex-shrink-0 mt-0.5" />
           <div>
-            <h4 className="font-semibold text-red-300 mb-1">Warning: Destructive Action</h4>
-            <p className="text-sm">
-              Are you sure you want to delete <strong className="text-white">{project?.name}</strong>? 
+            <h4 className="font-semibold text-red-700 dark:text-red-300 mb-1">Warning: Destructive Action</h4>
+            <p className="text-sm text-slate-700 dark:text-slate-300">
+              Are you sure you want to delete <strong className="text-slate-900 dark:text-white">{project?.name}</strong>? 
               This action cannot be undone and will delete all associated tasks.
             </p>
           </div>
