@@ -1,6 +1,6 @@
 import prisma from "../config/prisma.js";
 import { AppError } from "../utils/AppError.js";
-import { createProjectSchema, getProjectsSchema } from '../validation/project.validation.js';
+import { createProjectSchema, getProjectsSchema, updateProjectSchema } from '../validation/project.validation.js';
 import { WorkspaceRole } from "../prisma/index.js";
 
 export const projectService = {
@@ -66,7 +66,6 @@ export const projectService = {
             where: { workspaceId: project.workspaceId, userId }
         });
         if (!membership) throw new AppError("Forbidden: You do not have access to this workspace", 403);
-
         return project;
     },
 
