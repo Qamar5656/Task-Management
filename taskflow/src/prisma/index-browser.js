@@ -211,6 +211,17 @@ exports.Prisma.RefreshTokenScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.ActivityLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  workspaceId: 'workspaceId',
+  projectId: 'projectId',
+  action: 'action',
+  entityType: 'entityType',
+  entityName: 'entityName',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -255,7 +266,8 @@ exports.Prisma.ModelName = {
   Task: 'Task',
   Label: 'Label',
   TaskComment: 'TaskComment',
-  RefreshToken: 'RefreshToken'
+  RefreshToken: 'RefreshToken',
+  ActivityLog: 'ActivityLog'
 };
 
 /**

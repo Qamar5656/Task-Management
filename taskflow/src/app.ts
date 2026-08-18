@@ -7,6 +7,9 @@ import workspaceRoutes from "./routes/workspace.routes.js"
 import projectRoutes from "./routes/projects.routes.js"
 import commentRoutes from "./routes/comments.routes.js"
 import labelRoutes from "./routes/label.routes.js"
+import activityRoutes from "./routes/activity.routes.js"
+import dashboardRoutes from "./routes/dashboard.routes.js"
+import userRoutes from "./routes/user.routes.js"
 import cors from 'cors';
 
 const app= express()
@@ -20,6 +23,9 @@ app.use("/api/workspaces", workspaceRoutes)
 app.use("/api/projects", projectRoutes)
 app.use("/api/comment",commentRoutes)
 app.use("/api/labels", labelRoutes)
+app.use("/api/activities", activityRoutes)
+app.use("/api/dashboard", dashboardRoutes)
+app.use("/api/user", userRoutes)
 
 app.use(errorHandler);
 

@@ -28,19 +28,21 @@ model User {
   createdTasks           Task[]            @relation("TaskCreator")
   comments               TaskComment[]
   refreshTokens          RefreshToken[]
+  activityLogs           ActivityLog[]
 }
 
 model Workspace {
-  id        String            @id @default(uuid())
-  name      String
-  slug      String            @unique
-  isActive  Boolean           @default(true)
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
-  deletedAt DateTime?
-  members   WorkspaceMember[]
-  projects  Project[]
-  labels    Label[]
+  id           String            @id @default(uuid())
+  name         String
+  slug         String            @unique
+  isActive     Boolean           @default(true)
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  deletedAt    DateTime?
+  members      WorkspaceMember[]
+  projects     Project[]
+  labels       Label[]
+  activityLogs ActivityLog[]
 }
 
 model WorkspaceMember {
@@ -63,17 +65,18 @@ enum WorkspaceRole {
 }
 
 model Project {
-  userId      String
-  workspaceId String
-  id          String    @id @default(uuid())
-  name        String
-  slug        String    @unique
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  user        User      @relation(fields: [userId], references: [id])
-  tasks       Task[]
+  userId       String
+  workspaceId  String
+  id           String        @id @default(uuid())
+  name         String
+  slug         String        @unique
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+  workspace    Workspace     @relation(fields: [workspaceId], references: [id])
+  user         User          @relation(fields: [userId], references: [id])
+  tasks        Task[]
+  activityLogs ActivityLog[]
 }
 
 model Task {
@@ -154,5 +157,21 @@ model RefreshToken {
   userId    String
   user      User     @relation(fields: [userId], references: [id])
   expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model ActivityLog {
+  id          String     @id @default(uuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  workspaceId String?
+  workspace   Workspace? @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  projectId   String?
+  project     Project?   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  action     String
+  entityType String
+  entityName String
+
   createdAt DateTime @default(now())
 }

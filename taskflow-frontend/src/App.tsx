@@ -17,6 +17,9 @@ import { DashboardOverviewPage } from './pages/dashboard/DashboardOverviewPage';
 import { WorkspacesPage } from './pages/workspace/WorkspacesPage';
 import { CreateWorkspacePage } from './pages/workspace/CreateWorkspacePage';
 import { WorkspaceDetailPage } from './pages/workspace/WorkspaceDetailPage';
+import { ProjectTasksPage } from './pages/project/ProjectTasksPage';
+import { GlobalTasksPage } from './pages/tasks/GlobalTasksPage';
+import { SettingsPage } from './pages/settings/SettingsPage';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = useAuth();
@@ -51,6 +54,15 @@ const AppRoutes = () => {
         <Route path="workspaces" element={<WorkspacesPage />} />
         <Route path="workspaces/create" element={<CreateWorkspacePage />} />
         <Route path="workspaces/:id" element={<WorkspaceDetailPage />} />
+        
+        {/* Project Routes */}
+        <Route path="projects/:id" element={<ProjectTasksPage />} />
+
+        {/* Global Tasks */}
+        <Route path="tasks" element={<GlobalTasksPage />} />
+        
+        {/* Settings */}
+        <Route path="settings" element={<SettingsPage />} />
       </Route>
 
       {/* Catch All */}
