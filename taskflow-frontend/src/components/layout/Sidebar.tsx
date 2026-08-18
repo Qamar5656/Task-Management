@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, FolderKanban, Settings, Sparkles, Zap } from 'lucide-react';
+import { Home, FolderKanban, Settings, Sparkles, Zap, CheckSquare } from 'lucide-react';
 
 const NAV_ITEMS = [
   { name: 'Dashboard', path: '/', icon: Home },
   { name: 'Workspaces', path: '/workspaces', icon: FolderKanban },
+  { name: 'Tasks', path: '/tasks', icon: CheckSquare },
   { name: 'Settings', path: '/settings', icon: Settings },
 ];
 
@@ -55,7 +56,7 @@ export const Sidebar = ({ isCollapsed, isMobileMenuOpen, setIsMobileMenuOpen }: 
             key={item.path}
             to={item.path}
             onClick={() => setIsMobileMenuOpen(false)}
-            title={isCollapsed ? item.name : undefined}
+            title={item.name}
             className={({ isActive }) =>
               `flex items-center gap-3 py-3 rounded-xl transition-all duration-300 font-medium ${isCollapsed ? 'justify-center px-0' : 'px-4'} ${
                 isActive
@@ -72,19 +73,7 @@ export const Sidebar = ({ isCollapsed, isMobileMenuOpen, setIsMobileMenuOpen }: 
 
       {/* Footer Area */}
       {!isCollapsed ? (
-        <div className="p-4 border-t border-slate-200 dark:border-white/10 whitespace-nowrap overflow-hidden">
-          <div className="bg-slate-50 dark:bg-slate-800/50 rounded-xl p-4 border border-slate-200 dark:border-white/5">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium mb-2">Pro Plan</p>
-            <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 mb-2 overflow-hidden">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: '45%' }}
-                transition={{ duration: 1, delay: 0.2 }}
-                className="bg-gradient-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full"
-              />
-            </div>
-            <p className="text-xs text-slate-600 dark:text-slate-500">45% limits used</p>
-          </div>
+        <div >
         </div>
       ) : (
         <div className="p-4 border-t border-slate-200 dark:border-white/10 flex justify-center">

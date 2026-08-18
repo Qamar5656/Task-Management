@@ -41,7 +41,7 @@ export const DashboardLayout = () => {
               isSidebarCollapsed ? 'md:ml-20' : 'md:ml-64'
             }`}
           >
-            <div className="relative z-10 max-w-7xl mx-auto h-full">
+            <div className="relative z-10 w-full h-full">
               <Outlet />
             </div>
           </main>

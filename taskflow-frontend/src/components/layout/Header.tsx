@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { LogOut, Bell, Search, User as UserIcon, Menu, PanelLeftClose, PanelLeftOpen, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
 import { motion } from 'framer-motion';
+import { Modal } from '../ui/Modal';
+import { Button } from '../ui/Button';
 
 interface HeaderProps {
   isSidebarCollapsed: boolean;
@@ -13,9 +15,11 @@ interface HeaderProps {
 export const Header = ({ isSidebarCollapsed, setIsSidebarCollapsed, setIsMobileMenuOpen }: HeaderProps) => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   return (
-    <header className={`h-16 bg-white/80 dark:bg-[#0B0F19]/60 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/60 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 w-full transition-all duration-300 ${
+    <>
+      <header className={`h-16 bg-white/80 dark:bg-[#0B0F19]/60 backdrop-blur-xl border-b border-slate-200 dark:border-slate-800/60 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-30 w-full transition-all duration-300 ${
       isSidebarCollapsed ? 'md:ml-20 md:w-[calc(100%-5rem)]' : 'md:ml-64 md:w-[calc(100%-16rem)]'
     }`}>
       
@@ -23,6 +27,7 @@ export const Header = ({ isSidebarCollapsed, setIsSidebarCollapsed, setIsMobileM
         {/* Mobile Menu Toggle */}
         <button 
           onClick={() => setIsMobileMenuOpen(true)}
+          title="Open Menu"
           className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer flex-shrink-0"
         >
           <Menu className="w-5 h-5" />
@@ -53,7 +58,7 @@ export const Header = ({ isSidebarCollapsed, setIsSidebarCollapsed, setIsMobileM
       {/* Right Actions */}
       <div className="flex items-center gap-2 sm:gap-4 ml-4">
         {/* Search for Mobile */}
-        <button className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+        <button title="Search" className="md:hidden p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
           <Search className="w-5 h-5" />
         </button>
         
@@ -67,7 +72,7 @@ export const Header = ({ isSidebarCollapsed, setIsSidebarCollapsed, setIsMobileM
         </button>
 
         {/* Notifications */}
-        <button className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
+        <button title="Notifications" className="relative p-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-colors rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer">
           <Bell className="w-5 h-5" />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-purple-500 rounded-full border-2 border-white dark:border-slate-900" />
         </button>
@@ -86,7 +91,7 @@ export const Header = ({ isSidebarCollapsed, setIsSidebarCollapsed, setIsMobileM
           </div>
 
           <button 
-            onClick={logout}
+            onClick={() => setIsLogoutModalOpen(true)}
             title="Sign Out"
             className="p-2 text-slate-500 dark:text-slate-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-xl transition-all cursor-pointer sm:ml-2"
           >
@@ -95,5 +100,34 @@ export const Header = ({ isSidebarCollapsed, setIsSidebarCollapsed, setIsMobileM
         </div>
       </div>
     </header>
+
+    <Modal 
+      isOpen={isLogoutModalOpen} 
+      onClose={() => setIsLogoutModalOpen(false)} 
+      title="Confirm Sign Out"
+    >
+      <div className="text-center sm:text-left">
+        <p className="text-slate-600 dark:text-slate-300 mb-6">
+          Are you sure you want to sign out?
+        </p>
+        <div className="flex items-center justify-end gap-3 mt-6">
+          <Button variant="secondary" className='cursor-pointer' onClick={() => setIsLogoutModalOpen(false)}>
+            Cancel
+          </Button>
+          <Button 
+            variant="primary" 
+            onClick={() => {
+              setIsLogoutModalOpen(false);
+              logout();
+            }}
+            className="bg-red-600 hover:bg-red-700 text-white shadow-red-500/20 cursor-pointer"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
+        </div>
+      </div>
+    </Modal>
+    </>
   );
 };
