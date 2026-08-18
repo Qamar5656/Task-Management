@@ -3,24 +3,27 @@ import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { LayoutTemplate, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { workspaceService } from '../../services/workspace.service';
+import { createWorkspaceSchema, type CreateWorkspaceInput } from '../../validation/workspace.validation';
 
 export const CreateWorkspacePage = () => {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return toast.error('Workspace name is required');
+  const { register, handleSubmit, formState: { errors } } = useForm<CreateWorkspaceInput>({
+    resolver: zodResolver(createWorkspaceSchema),
+    defaultValues: { name: '' }
+  });
 
+  const onSubmit = async (data: CreateWorkspaceInput) => {
     setIsLoading(true);
     try {
-      const workspace = await workspaceService.create({ name });
+      await workspaceService.create({ name: data.name });
       toast.success('Workspace created successfully!');
-      // Navigate to the newly created workspace's detail page
       navigate(`/workspaces`);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to create workspace');
@@ -51,15 +54,14 @@ export const CreateWorkspacePage = () => {
         transition={{ delay: 0.1 }}
         className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl"
       >
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <Input
             label="Workspace Name"
             type="text"
             placeholder="e.g. Acme Corp Engineering"
             icon={LayoutTemplate}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
+            error={errors.name?.message}
+            {...register('name')}
             autoFocus
           />
 

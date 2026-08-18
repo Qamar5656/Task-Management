@@ -2,6 +2,7 @@ import prisma from '../config/prisma.js';
 import { createWorkspaceSchema, updateWorkspaceSchema, addMemberSchema } from '../validation/workspace.validation.js';
 import { WorkspaceRole } from '../prisma/index.js';
 import { AppError } from '../utils/AppError.js';
+import { activityService } from './activity.service.js';
 
 export const workspaceService = {
     createWorkspace: async (data: { name: string; userId: string }) => {
@@ -30,6 +31,15 @@ export const workspaceService = {
                 }
             }
         });
+        
+        await activityService.logActivity({
+            userId: data.userId,
+            workspaceId: workspace.id,
+            action: 'CREATED',
+            entityType: 'WORKSPACE',
+            entityName: workspace.name
+        });
+
         return workspace;
     },
 
@@ -88,10 +98,20 @@ export const workspaceService = {
 
         const slug = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
-        return await prisma.workspace.update({
+        const updated = await prisma.workspace.update({
             where: { id },
             data: { name: data.name, slug }
         });
+
+        await activityService.logActivity({
+            userId,
+            workspaceId: id,
+            action: 'UPDATED',
+            entityType: 'WORKSPACE',
+            entityName: updated.name
+        });
+
+        return updated;
     },
 
     deleteWorkspace: async (id: string, userId: string) => {
@@ -101,14 +121,17 @@ export const workspaceService = {
         });
         if (!workspace) throw new Error("Workspace not found or unauthorized");
 
-        // Delete all members of this workspace first (since we don't have onDelete: Cascade in schema)
-        await prisma.workspaceMember.deleteMany({
-            where: { workspaceId: id }
-        });
-
         // Delete the workspace
         await prisma.workspace.delete({
             where: { id }
+        });
+
+        await activityService.logActivity({
+            userId,
+            workspaceId: id,
+            action: 'DELETED',
+            entityType: 'WORKSPACE',
+            entityName: workspace.name
         });
         
         return { message: "Workspace deleted successfully" };
@@ -137,7 +160,7 @@ export const workspaceService = {
         if (existingMember) throw new AppError("User is already a member of this workspace", 400);
 
         // Add them to the workspace
-        return await prisma.workspaceMember.create({
+        const newMember = await prisma.workspaceMember.create({
             data: {
                 workspaceId,
                 userId: userToInvite.id,
@@ -147,6 +170,16 @@ export const workspaceService = {
                 user: { select: { id: true, name: true, email: true } }
             }
         });
+
+        await activityService.logActivity({
+            userId: inviterUserId,
+            workspaceId,
+            action: 'ADDED_MEMBER',
+            entityType: 'USER',
+            entityName: userToInvite.email
+        });
+
+        return newMember;
     },
 
     getMembers: async (workspaceId: string, userId: string) => {
@@ -173,7 +206,8 @@ export const workspaceService = {
 
         // Verify the member to remove exists in the workspace
         const memberToRemove = await prisma.workspaceMember.findFirst({
-            where: { workspaceId, userId: memberUserId }
+            where: { workspaceId, userId: memberUserId },
+            include: { user: true }
         });
         if (!memberToRemove) throw new AppError("Member not found in this workspace", 404);
 
@@ -183,6 +217,15 @@ export const workspaceService = {
         }
 
         await prisma.workspaceMember.delete({ where: { id: memberToRemove.id } });
+
+        await activityService.logActivity({
+            userId: adminUserId,
+            workspaceId,
+            action: 'REMOVED_MEMBER',
+            entityType: 'USER',
+            entityName: memberToRemove.user.email
+        });
+
         return { message: "Member removed successfully" };
     }
 };
