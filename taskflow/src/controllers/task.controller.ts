@@ -21,6 +21,13 @@ export const taskController = {
         res.status(200).json(tasks);
     }),
 
+    getMyTasks: catchAsync(async (req: Request, res: Response) => {
+        const userId = req.user?.id;
+        if (!userId) throw new AppError("Unauthorized", 401);
+        const tasks = await taskService.getUserTasks(userId);
+        res.status(200).json(tasks);
+    }),
+
     getById: catchAsync(async (req: Request, res: Response) => {
         const userId = req.user?.id;
         if (!userId) throw new AppError("Unauthorized", 401);

@@ -58,7 +58,8 @@ export const commentService = {
 
         return await prisma.taskComment.findMany({
             where: { taskId },
-            orderBy: { createdAt: 'desc' }
+            orderBy: { createdAt: 'desc' },
+            include: { user: { select: { id: true, name: true, email: true } } }
         });
     },
 
