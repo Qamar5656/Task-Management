@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MoreVertical } from 'lucide-react';
+import { MoreVertical, type LucideIcon } from 'lucide-react';
 
 export interface ActionMenuItem {
   label: string;
@@ -43,6 +43,7 @@ export const ActionMenu = ({ actions }: ActionMenuProps) => {
   return (
     <div className="relative" ref={menuRef}>
       <button
+        aria-label="Open action menu"
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();

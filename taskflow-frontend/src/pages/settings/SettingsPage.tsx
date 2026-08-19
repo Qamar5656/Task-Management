@@ -15,7 +15,7 @@ import {
 } from '../../validation/user.validation';
 
 export const SettingsPage = () => {
-  const { user, checkAuth } = useAuth();
+  const { user, login } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
   const [activeTab, setActiveTab] = useState<'account' | 'preferences'>('account');
@@ -43,7 +43,13 @@ export const SettingsPage = () => {
   const onUpdateProfile = async (data: UpdateProfileInput) => {
     try {
       await userService.updateProfile({ name: data.name });
-      await checkAuth(); // Re-fetch user context to update header
+      if (user) {
+        login(
+          localStorage.getItem('token')!, 
+          localStorage.getItem('refresh_token')!, 
+          { ...user, name: data.name }
+        );
+      }
       toast.success('Profile updated successfully');
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to update profile');

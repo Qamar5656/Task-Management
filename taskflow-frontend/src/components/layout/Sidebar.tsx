@@ -28,21 +28,22 @@ export const Sidebar = ({ isCollapsed, isMobileMenuOpen, setIsMobileMenuOpen }: 
       {/* Logo Area */}
       <div className="h-16 flex items-center justify-between px-6 border-b border-slate-200 dark:border-slate-800/60 relative">
         <div className={`flex items-center gap-3 ${isCollapsed ? 'mx-auto' : ''}`}>
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/30 flex-shrink-0">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          <Link to="/">
-          {!isCollapsed && (
-            <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 whitespace-nowrap">
-              TaskFlow
-            </span>
-          )}
+          <Link to="/" className="flex items-center gap-3" aria-label="TaskFlow Home">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-purple-500 shadow-lg shadow-indigo-500/30 flex-shrink-0">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            {!isCollapsed && (
+              <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600 dark:from-indigo-400 dark:to-purple-400 whitespace-nowrap">
+                TaskFlow
+              </span>
+            )}
           </Link>
         </div>
         
         {/* Mobile Close Button */}
         <button 
           onClick={() => setIsMobileMenuOpen(false)}
+          aria-label="Close sidebar"
           className="md:hidden p-2 -mr-2 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>

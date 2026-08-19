@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Modal } from '../../../components/ui/Modal';
 import { Button } from '../../../components/ui/Button';
 import { Input } from '../../../components/ui/Input';
@@ -7,6 +9,7 @@ import { workspaceService, type WorkspaceMember } from '../../../services/worksp
 import { projectService } from '../../../services/project.service';
 import toast from 'react-hot-toast';
 import { Calendar, Clock, User as UserIcon } from 'lucide-react';
+import { createTaskSchema, type CreateTaskInput } from '../../../validation/task.validation';
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -25,16 +28,22 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
   taskToEdit,
   onSuccess
 }) => {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState<Priority>(Priority.MEDIUM);
-  const [status, setStatus] = useState<TaskStatus>(TaskStatus.TODO);
-  const [assigneeId, setAssigneeId] = useState<string>('');
-  const [startDate, setStartDate] = useState<string>('');
-  const [dueDate, setDueDate] = useState<string>('');
-  const [estimate, setEstimate] = useState<string>('');
   const [isLoading, setIsLoading] = useState(false);
   const [members, setMembers] = useState<WorkspaceMember[]>([]);
+
+  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<CreateTaskInput>({
+    resolver: zodResolver(createTaskSchema),
+    defaultValues: {
+      name: '',
+      description: '',
+      priority: Priority.MEDIUM,
+      status: initialStatus,
+      userId: '',
+      startDate: '',
+      dueDate: '',
+      estimate: '' as any
+    }
+  });
 
   useEffect(() => {
     if (isOpen && projectId) {
@@ -51,42 +60,43 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       fetchMembers();
 
       if (taskToEdit) {
-        setName(taskToEdit.name);
-        setDescription(taskToEdit.description || '');
-        setPriority(taskToEdit.priority);
-        setStatus(taskToEdit.status);
-        setAssigneeId(taskToEdit.user?.id || '');
-        setStartDate(taskToEdit.startDate ? new Date(taskToEdit.startDate).toISOString().split('T')[0] : '');
-        setDueDate(taskToEdit.dueDate ? new Date(taskToEdit.dueDate).toISOString().split('T')[0] : '');
-        setEstimate(taskToEdit.estimate ? taskToEdit.estimate.toString() : '');
+        reset({
+          name: taskToEdit.name,
+          description: taskToEdit.description || '',
+          priority: taskToEdit.priority,
+          status: taskToEdit.status,
+          userId: taskToEdit.user?.id || '',
+          startDate: taskToEdit.startDate ? new Date(taskToEdit.startDate).toISOString().split('T')[0] : '',
+          dueDate: taskToEdit.dueDate ? new Date(taskToEdit.dueDate).toISOString().split('T')[0] : '',
+          estimate: (taskToEdit.estimate ? taskToEdit.estimate.toString() : '') as any
+        });
       } else {
-        setName('');
-        setDescription('');
-        setPriority(Priority.MEDIUM);
-        setStatus(initialStatus);
-        setAssigneeId('');
-        setStartDate('');
-        setDueDate('');
-        setEstimate('');
+        reset({
+          name: '',
+          description: '',
+          priority: Priority.MEDIUM,
+          status: initialStatus,
+          userId: '',
+          startDate: '',
+          dueDate: '',
+          estimate: '' as any
+        });
       }
     }
-  }, [isOpen, taskToEdit, initialStatus, projectId]);
+  }, [isOpen, taskToEdit, initialStatus, projectId, reset]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-
+  const onSubmit = async (data: CreateTaskInput) => {
     setIsLoading(true);
     try {
       const payload = {
-        name,
-        description,
-        priority,
-        status,
-        userId: assigneeId || undefined,
-        startDate: startDate ? new Date(startDate).toISOString() : undefined,
-        dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
-        estimate: estimate ? parseInt(estimate) : undefined,
+        name: data.name,
+        description: data.description,
+        priority: data.priority,
+        status: data.status,
+        userId: data.userId || undefined,
+        startDate: data.startDate ? new Date(data.startDate).toISOString() : undefined,
+        dueDate: data.dueDate ? new Date(data.dueDate).toISOString() : undefined,
+        estimate: data.estimate ? Number(data.estimate) : undefined,
       };
 
       if (taskToEdit) {
@@ -114,13 +124,13 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
       onClose={onClose}
       title={taskToEdit ? "Edit Task" : "Create New Task"}
     >
-      <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+      <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-4 mt-4">
         <Input
           label="Task Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          error={errors.name?.message}
+          {...register('name')}
           placeholder="e.g., Design landing page..."
-          required
+          autoFocus
         />
         
         <div className="space-y-1">
@@ -128,11 +138,13 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             Description
           </label>
           <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            {...register('description')}
             className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all duration-300 outline-none text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 min-h-[100px] resize-none"
             placeholder="Add some details about this task..."
           />
+          {errors.description && (
+            <p className="mt-1.5 text-sm text-red-500 ml-1">{errors.description.message}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -141,14 +153,16 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               Status
             </label>
             <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as TaskStatus)}
+              {...register('status')}
               className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300 outline-none text-slate-900 dark:text-white"
             >
               {Object.values(TaskStatus).map(s => (
                 <option key={s} value={s}>{s.replace('_', ' ')}</option>
               ))}
             </select>
+            {errors.status && (
+              <p className="mt-1.5 text-sm text-red-500 ml-1">{errors.status.message}</p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -156,14 +170,16 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               Priority
             </label>
             <select
-              value={priority}
-              onChange={(e) => setPriority(e.target.value as Priority)}
+              {...register('priority')}
               className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300 outline-none text-slate-900 dark:text-white"
             >
               {Object.values(Priority).map(p => (
                 <option key={p} value={p}>{p}</option>
               ))}
             </select>
+            {errors.priority && (
+              <p className="mt-1.5 text-sm text-red-500 ml-1">{errors.priority.message}</p>
+            )}
           </div>
           
           <div className="space-y-1 sm:col-span-2">
@@ -171,15 +187,17 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
               <UserIcon className="w-4 h-4" /> Assignee
             </label>
             <select
-              value={assigneeId}
-              onChange={(e) => setAssigneeId(e.target.value)}
+              {...register('userId')}
               className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300 outline-none text-slate-900 dark:text-white"
             >
               <option value="">Unassigned (defaults to you)</option>
               {members.map(m => (
-                <option key={m.user.id} value={m.user.id}>{m.user.name || m.user.email}</option>
+                <option key={m.user?.id} value={m.user?.id}>{m.user?.name || m.user?.email}</option>
               ))}
             </select>
+            {errors.userId && (
+              <p className="mt-1.5 text-sm text-red-500 ml-1">{errors.userId.message}</p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -188,10 +206,12 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             </label>
             <input
               type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              {...register('startDate')}
               className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300 outline-none text-slate-900 dark:text-white"
             />
+            {errors.startDate && (
+              <p className="mt-1.5 text-sm text-red-500 ml-1">{errors.startDate.message}</p>
+            )}
           </div>
 
           <div className="space-y-1">
@@ -200,10 +220,12 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             </label>
             <input
               type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
+              {...register('dueDate')}
               className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300 outline-none text-slate-900 dark:text-white"
             />
+            {errors.dueDate && (
+              <p className="mt-1.5 text-sm text-red-500 ml-1">{errors.dueDate.message}</p>
+            )}
           </div>
 
           <div className="space-y-1 sm:col-span-2">
@@ -213,11 +235,13 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
             <input
               type="number"
               min="0"
-              value={estimate}
-              onChange={(e) => setEstimate(e.target.value)}
+              {...register('estimate')}
               placeholder="e.g., 4"
               className="w-full px-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 transition-all duration-300 outline-none text-slate-900 dark:text-white"
             />
+            {errors.estimate && (
+              <p className="mt-1.5 text-sm text-red-500 ml-1">{errors.estimate.message}</p>
+            )}
           </div>
         </div>
 
@@ -225,7 +249,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({
           <Button variant="secondary" onClick={onClose} type="button">
             Cancel
           </Button>
-          <Button variant="primary" type="submit" isLoading={isLoading} disabled={!name.trim()}>
+          <Button variant="primary" type="submit" isLoading={isLoading}>
             {taskToEdit ? "Save Changes" : "Create Task"}
           </Button>
         </div>
