@@ -29,7 +29,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading && <Loader2 className="w-5 h-5 mr-2 animate-spin" />}
-        <span className={isLoading ? 'opacity-90' : ''}>{children}</span>
+        <span className={isLoading ? 'opacity-90' : ''}>{children as React.ReactNode}</span>
       </motion.button>
     );
   }

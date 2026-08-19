@@ -1,30 +1,35 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, Sparkles } from 'lucide-react';
+import { Lock, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { api } from '../../services/api';
+import { resetPasswordSchema, type ResetPasswordInput } from '../../validation/auth.validation';
 
 export const ResetPasswordPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const resetToken = searchParams.get('token') || '';
-  
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const token = searchParams.get('token');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!resetToken) return toast.error("Invalid session. Please restart password reset.");
-    if (!password || !confirmPassword) return toast.error("Please fill in all fields.");
-    if (password !== confirmPassword) return toast.error("Passwords do not match!");
+  const { register, handleSubmit, formState: { errors } } = useForm<ResetPasswordInput>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: { newPassword: '', confirmPassword: '' }
+  });
+
+  const onSubmit = async (data: ResetPasswordInput) => {
+    if (!token) return toast.error('Reset token is missing');
 
     setIsLoading(true);
     try {
-      await api.post('/auth/reset-password', { resetToken, newPassword: password });
+      await api.post('/auth/reset-password', { 
+        resetToken: token, 
+        newPassword: data.newPassword 
+      });
       toast.success('Password changed successfully! You can now log in.');
       navigate('/login');
     } catch (error: any) {
@@ -49,7 +54,7 @@ export const ResetPasswordPage = () => {
           
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-500 mb-4 shadow-lg shadow-indigo-500/30">
-              <Sparkles className="w-6 h-6 text-white" />
+              <ShieldCheck className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
               Create New Password
@@ -59,25 +64,23 @@ export const ResetPasswordPage = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
               label="New Password"
               type="password"
               placeholder="••••••••"
               icon={Lock}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              error={errors.newPassword?.message}
+              {...register('newPassword')}
             />
-
+            
             <Input
               label="Confirm New Password"
               type="password"
               placeholder="••••••••"
               icon={Lock}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
+              error={errors.confirmPassword?.message}
+              {...register('confirmPassword')}
             />
             
             <p className="text-xs text-slate-500 mt-1 ml-1">

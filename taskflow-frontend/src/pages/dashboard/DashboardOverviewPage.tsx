@@ -5,13 +5,13 @@ import { Plus, LayoutTemplate, Users, CheckCircle2, Clock, Loader2 } from 'lucid
 import { Button } from '../../components/ui/Button';
 import { Link } from 'react-router-dom';
 import { workspaceService, type Workspace } from '../../services/workspace.service';
-import { activityService, type Activity } from '../../services/activity.service';
+import { activityService, type ActivityLog } from '../../services/activity.service';
 import { dashboardService, type DashboardStats } from '../../services/dashboard.service';
 
 export const DashboardOverviewPage = () => {
   const { user } = useAuth();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
-  const [activities, setActivities] = useState<Activity[]>([]);
+  const [activities, setActivities] = useState<ActivityLog[]>([]);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -137,12 +137,12 @@ export const DashboardOverviewPage = () => {
                     >
                       <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700 shadow-sm">
                         <span className="text-sm font-bold text-slate-600 dark:text-slate-400">
-                          {activity.user.name.charAt(0).toUpperCase()}
+                          {activity.user?.name?.charAt(0).toUpperCase() || activity.user?.email.charAt(0).toUpperCase()}
                         </span>
                       </div>
                       <div className="flex-1">
                         <p className="text-slate-700 dark:text-slate-300">
-                          <span className="font-semibold text-slate-900 dark:text-white">{activity.user.name}</span>{' '}
+                          <span className="font-semibold text-slate-900 dark:text-white">{activity.user?.name || activity.user?.email}</span>{' '}
                           <span className="text-slate-500 dark:text-slate-400">{activity.action.toLowerCase()}</span>{' '}
                           {activity.entityType.toLowerCase()}{' '}
                           <span className="font-medium text-slate-900 dark:text-white">"{activity.entityName}"</span>

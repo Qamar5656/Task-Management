@@ -1,28 +1,34 @@
 import React, { useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { KeyRound, Sparkles, ArrowLeft } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { api } from '../../services/api';
+import { verifyOtpSchema, type VerifyOtpInput } from '../../validation/auth.validation';
 
 export const VerifyOtpPage = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const email = searchParams.get('email') || '';
-  
-  const [otp, setOtp] = useState('');
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const email = searchParams.get('email');
+
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return toast.error("Email is missing. Go back and try again.");
-    if (otp.length !== 6) return toast.error("OTP must be 6 digits.");
+  const { register, handleSubmit, formState: { errors } } = useForm<VerifyOtpInput>({
+    resolver: zodResolver(verifyOtpSchema),
+    defaultValues: { otp: '' }
+  });
+
+  const onSubmit = async (data: VerifyOtpInput) => {
+    if (!email) return toast.error('Email is missing from URL');
 
     setIsLoading(true);
     try {
-      const response = await api.post('/auth/verify-otp', { email, otp });
+      const response = await api.post('/auth/verify-otp', { email, otp: data.otp });
       toast.success('OTP Verified!');
       // Navigate to reset password page and pass the temporary reset token
       navigate(`/reset-password?token=${response.data.resetToken}`);
@@ -58,16 +64,15 @@ export const VerifyOtpPage = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <Input
               label="6-Digit OTP"
               type="text"
               placeholder="123456"
-              maxLength={6}
               icon={KeyRound}
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} // Only allow numbers
-              required
+              error={errors.otp?.message}
+              {...register('otp')}
+              maxLength={6}
             />
             
             <div className="pt-2">

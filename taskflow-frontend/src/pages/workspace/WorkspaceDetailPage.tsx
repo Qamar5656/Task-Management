@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Loader2, LayoutTemplate, Users, Settings, FolderKanban, Plus, Edit2, Trash2, Mail, Shield, UserMinus } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { workspaceService, type Workspace, type WorkspaceMember, WorkspaceRole } from '../../services/workspace.service';
 import { projectService, type Project } from '../../services/project.service';
 import { labelService, type Label } from '../../services/label.service';
+import { createLabelSchema, type CreateLabelInput } from '../../validation/workspace.validation';
 import { ActionMenu } from '../../components/ui/ActionMenu';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -29,10 +32,13 @@ export const WorkspaceDetailPage = () => {
   const [isLabelsLoading, setIsLabelsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'projects' | 'members' | 'labels'>('projects');
   
-  // Create Label State
-  const [newLabelName, setNewLabelName] = useState('');
-  const [newLabelColor, setNewLabelColor] = useState('#6366f1');
   const [isCreatingLabel, setIsCreatingLabel] = useState(false);
+
+  // Zod form for labels
+  const { register: registerLabel, handleSubmit: handleSubmitLabel, formState: { errors: labelErrors }, reset: resetLabel } = useForm<CreateLabelInput>({
+    resolver: zodResolver(createLabelSchema),
+    defaultValues: { name: '', color: '#6366f1' }
+  });
 
   // Modal States
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -102,14 +108,13 @@ export const WorkspaceDetailPage = () => {
     }
   };
 
-  const handleCreateLabel = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!id || !newLabelName.trim()) return;
+  const onCreateLabel = async (data: CreateLabelInput) => {
+    if (!id) return;
     setIsCreatingLabel(true);
     try {
-      await labelService.create({ name: newLabelName.trim(), color: newLabelColor, workspaceId: id });
+      await labelService.create({ name: data.name, color: data.color, workspaceId: id });
       toast.success("Label created successfully");
-      setNewLabelName('');
+      resetLabel();
       fetchLabels();
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to create label');
@@ -406,25 +411,25 @@ export const WorkspaceDetailPage = () => {
               {canManageMembers && (
                 <div className="lg:col-span-1 border-r border-slate-200 dark:border-slate-800 pr-0 lg:pr-8">
                   <h3 className="font-semibold text-slate-900 dark:text-white mb-4">Create New Label</h3>
-                  <form onSubmit={handleCreateLabel} className="space-y-4">
+                  <form onSubmit={handleSubmitLabel(onCreateLabel)} className="space-y-4">
                     <Input
                       label="Label Name"
                       placeholder="e.g. Bug, Feature, Urgent"
-                      value={newLabelName}
-                      onChange={(e) => setNewLabelName(e.target.value)}
-                      required
+                      error={labelErrors.name?.message}
+                      {...registerLabel('name')}
                     />
                     <div>
                       <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 ml-1">Color</label>
                       <div className="flex items-center gap-3">
                         <input
                           type="color"
-                          value={newLabelColor}
-                          onChange={(e) => setNewLabelColor(e.target.value)}
+                          {...registerLabel('color')}
                           className="w-10 h-10 rounded cursor-pointer border-0 p-0"
                         />
-                        <span className="text-sm font-mono text-slate-500">{newLabelColor}</span>
                       </div>
+                      {labelErrors.color && (
+                        <p className="mt-1.5 text-sm text-red-500 ml-1">{labelErrors.color.message}</p>
+                      )}
                     </div>
                     <Button type="submit" variant="primary" className="w-full" disabled={isCreatingLabel}>
                       {isCreatingLabel ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Plus className="w-4 h-4 mr-2" />}

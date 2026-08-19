@@ -1,27 +1,31 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Sparkles, ArrowLeft } from 'lucide-react';
+import { Mail, ArrowLeft, KeyRound, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { api } from '../../services/api';
+import { forgotPasswordSchema, type ForgotPasswordInput } from '../../validation/auth.validation';
 
 export const ForgotPasswordPage = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return toast.error("Please enter your email");
+  const { register, handleSubmit, formState: { errors } } = useForm<ForgotPasswordInput>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: { email: '' }
+  });
 
+  const onSubmit = async (data: ForgotPasswordInput) => {
     setIsLoading(true);
     try {
-      await api.post('/auth/forgot-password', { email });
+      await api.post('/auth/forgot-password', data);
       // We always show success even if the email doesn't exist for security reasons
       toast.success('If your email is registered, you will receive an OTP.');
-      navigate(`/verify-otp?email=${encodeURIComponent(email)}`);
+      navigate(`/verify-otp?email=${encodeURIComponent(data.email)}`);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to request password reset');
     } finally {
@@ -54,15 +58,14 @@ export const ForgotPasswordPage = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <Input
               label="Email Address"
               type="email"
               placeholder="you@example.com"
               icon={Mail}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              error={errors.email?.message}
+              {...register('email')}
             />
             
             <div className="pt-2">

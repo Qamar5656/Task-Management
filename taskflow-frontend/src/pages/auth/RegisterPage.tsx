@@ -3,29 +3,29 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Mail, Lock, User, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { api } from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
+import { registerSchema, type RegisterInput } from '../../validation/auth.validation';
 
 export const RegisterPage = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
   
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name || !email || !password) return toast.error("Please fill in all fields");
+  const { register, handleSubmit, formState: { errors } } = useForm<RegisterInput>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { name: '', email: '', password: '' }
+  });
 
+  const onSubmit = async (data: RegisterInput) => {
     setIsLoading(true);
     try {
-      const response = await api.post('/auth/register', { name, email, password });
+      const response = await api.post('/auth/register', data);
       toast.success(response.data.message || 'OTP sent to your email!');
-      navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+      navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Failed to register');
     } finally {
@@ -58,15 +58,14 @@ export const RegisterPage = () => {
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <Input
               label="Full Name"
               type="text"
-              placeholder="Jane Doe"
+              placeholder="John Doe"
               icon={User}
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
+              error={errors.name?.message}
+              {...register('name')}
             />
 
             <Input
@@ -74,9 +73,8 @@ export const RegisterPage = () => {
               type="email"
               placeholder="you@example.com"
               icon={Mail}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+              error={errors.email?.message}
+              {...register('email')}
             />
             
             <Input
@@ -84,9 +82,8 @@ export const RegisterPage = () => {
               type="password"
               placeholder="••••••••"
               icon={Lock}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+              error={errors.password?.message}
+              {...register('password')}
             />
             <p className="text-xs text-slate-500 mt-1 ml-1">
               Must contain 1 uppercase, 1 lowercase, 1 number, and 1 special char.
