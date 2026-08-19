@@ -50,10 +50,7 @@ export interface Task {
   slug: string;
   status: TaskStatus;
   priority: Priority;
-  startDate?: string;
-  dueDate?: string;
   completedAt?: string;
-  estimate?: number;
   position?: number;
   createdById: string;
   createdAt: string;
