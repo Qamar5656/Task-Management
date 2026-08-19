@@ -4,13 +4,81 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TaskFlow</title>
+    <meta name="description" content="TaskFlow - Modern team collaboration and task management platform" />
+    <meta name="theme-color" content="#4f46e5" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="TaskFlow - Modern Team Collaboration" />
+    <meta property="og:description" content="Manage tasks, collaborate with your team, and organize projects effectively with TaskFlow." />
+    <meta property="og:type" content="website" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    
+    <title>TaskFlow - Modern Team Collaboration</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"> -->
+    
+    <!-- Preload fonts to prioritize fetching without blocking render -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+    
+    <!-- Load stylesheets asynchronously by initially setting media="print" and then switching to "all" on load -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+    
+    <!-- Fallback for users with JS disabled -->
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+    </noscript>
+    
+    <style>
+      body {
+        margin: 0;
+        background-color: #0f172a;
+      }
+      #initial-loader {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-color: #f8fafc;
+        z-index: 9999;
+        transition: opacity 0.5s ease;
+      }
+      @media (prefers-color-scheme: dark) {
+        #initial-loader {
+          background-color: #0B1120;
+        }
+      }
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid rgba(99, 102, 241, 0.2);
+        border-top-color: #6366f1;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+    </style>
   </head>
   <body>
+    <div id="initial-loader">
+      <div class="spinner"></div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    <script>
+      window.addEventListener('load', () => {
+        const loader = document.getElementById('initial-loader');
+        if (loader) {
+          loader.style.opacity = '0';
+          setTimeout(() => loader.remove(), 300);
+        }
+      });
+    </script>
   </body>
 </html>
